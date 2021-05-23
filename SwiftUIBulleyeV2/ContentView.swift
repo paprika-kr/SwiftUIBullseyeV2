@@ -10,6 +10,8 @@ import SwiftUI
 struct ContentView: View {
     //Properties
     //==========
+    //Colors
+    let midnightBlue = Color(red: 0, green: 0.2, blue: 0.4)
     
     //stage for User Interface views
     @State var alertIsVisible: Bool = false
@@ -27,27 +29,25 @@ struct ContentView: View {
     }
     
     var body: some View {
+        NavigationView {
         VStack{
             HStack {
                 Text("Put the bull eye as close as you can do:")
+                    .modifier(LabelStyle())
+                
                 Text("\(target)")
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color.gray)
-                    .padding()
-                
-                
+                    .modifier(ValueStyle())
             }
             Spacer()
-            
             //Slider row
             //TODO: Add view for the Slider row here
             HStack {
                 Text("1")
+                    .modifier(LabelStyle())
                 Slider(value: self.$sliderValue, in:1...100)
+                    .accentColor(Color.red)
                 Text("100")
-                    .fontWeight(.semibold)
-                    .foregroundColor(Color.black)
-                    .padding()
+                    .modifier(LabelStyle())
             }
             Spacer()
             
@@ -58,8 +58,11 @@ struct ContentView: View {
                 
             }) {
                 Text("Hit me!")
-                    .foregroundColor(Color.red)
+                    .modifier(ButtonLargeTextStyle())
             }
+            .background(Image("Button"))
+            .modifier(Shadow())
+            
             //State for alert
             .alert(isPresented: self.$alertIsVisible){
                 Alert(title: Text(alertTitle()),
@@ -75,24 +78,45 @@ struct ContentView: View {
             HStack {
                 Button(action:{
                         self.startNewGame()
-                    
                 }){
-                    Text("Start over")
+                    HStack{
+                        Image("StartOverIcon")
+                        Text("Start over")
+                            .modifier(ButtonSmallTextStyle())
+                    }
                 }
+                .background(Image("Button"))
+                .modifier(Shadow())
+                
                 Spacer()
                 Text("Score:")
+                    .modifier(LabelStyle())
                 Text("\(score)")
+                    .modifier(ValueStyle())
                 Spacer()
                 Text("Round:")
+                    .modifier(LabelStyle())
                 Text("\(round)")
+                    .modifier(ValueStyle())
                 Spacer()
-                Button(action:{}){
-                    Text("Inform")
+                //Button(action:{})
+                NavigationLink(destination: AboutView()){
+                    HStack{
+                        Image("InfoIcon")
+                        Text("Info")
+                            .modifier(ButtonSmallTextStyle())
+                    }
                 }
+                .background(Image("Button"))
+                .modifier(Shadow())
             }.padding(.bottom, 20)
+            .accentColor(midnightBlue)
         } // End of VStack
         .onAppear() {
-            self.startNewGame()}
+            self.startNewGame() }
+        .background(Image("Background"))
+        } //End of NavigationView
+        .navigationViewStyle(StackNavigationViewStyle())
     } // End of body
     
     //Methods
@@ -149,6 +173,52 @@ struct ContentView: View {
     }
 }// End of struct
 
+
+// View modifiers
+//================
+struct LabelStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(Font.custom("Arial Rounded MT Bold", size:18))
+            .foregroundColor(Color.white)
+            .modifier(Shadow())
+    }
+}
+
+struct ValueStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(Font.custom("Arial Rounded MT Bold", size:24))
+            .foregroundColor(Color.yellow)
+            .modifier(Shadow())
+    }
+}
+
+//Shadow
+struct Shadow: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .shadow(color: Color.black, radius: 5, x: 2, y: 2)
+    }
+}
+
+// For the Hit me!! button
+struct ButtonLargeTextStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(Font.custom("Arial Rounded MT Bold", size:18))
+            .foregroundColor(Color.black)
+    }
+}
+
+// For the start over and info button
+struct ButtonSmallTextStyle: ViewModifier {
+    func body(content: Content) -> some View {
+        content
+            .font(Font.custom("Arial Rounded MT Bold", size:12))
+            .foregroundColor(Color.black)
+    }
+}
 
 //Preview
 //=============
