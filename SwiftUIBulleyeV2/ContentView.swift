@@ -21,11 +21,16 @@ struct ContentView: View {
     var sliderValueRounded: Int {
         Int(self.sliderValue.rounded())
     }
+    
+    var sliderTargetDifference : Int {
+        abs(self.sliderValueRounded - self.target)
+    }
+    
     var body: some View {
         VStack{
             HStack {
                 Text("Put the bull eye as close as you can do:")
-                Text("100")
+                Text("\(self.target)")
                     .fontWeight(.semibold)
                     .foregroundColor(Color.gray)
                     .padding()
@@ -57,12 +62,10 @@ struct ContentView: View {
             }
             //State for alert
             .alert(isPresented: self.$alertIsVisible){
-                Alert(title: Text("Hello there!"),
+                Alert(title: Text(alertTitle()),
                         message: Text(self.scoringMessage()),
                         dismissButton: .default(Text("Awesome!")){ // alertIsVisible = false
-                        self.score = self.score + self.pointsForCurrentRound()
-                        self.target = Int.random(in: 1...100)
-                        self.round += 1
+                            self.startNewRound()
                 }) // End of .alert()
             }
             Spacer()
@@ -70,7 +73,10 @@ struct ContentView: View {
             //Score row
             //TODO: Add view for the score, rounds, and start over and info button
             HStack {
-                Button(action:{}){
+                Button(action:{
+                        self.startNewGame()
+                    
+                }){
                     Text("Start over")
                 }
                 Spacer()
@@ -91,14 +97,52 @@ struct ContentView: View {
     func pointsForCurrentRound() -> Int {
 
         let maximumScore = 100
-        let difference = abs(self.sliderValueRounded - self.target)
-        return maximumScore - difference
+        
+        let points : Int
+            if self.sliderTargetDifference == 0{
+                points = 200
+            } else if self.sliderTargetDifference == 1{
+                points = 150
+            } else {
+                points = maximumScore - self.sliderTargetDifference
+            }
+        return points
     }
     
     func scoringMessage() -> String {
         return "The slider's value is \(self.sliderValueRounded).\n" +
                 "The target value is \(self.target).\n" +
                 "You scored \(pointsForCurrentRound()) points this round."
+    }
+    
+    func alertTitle() -> String {
+        let title : String
+        if self.sliderTargetDifference == 0 {
+            title = "Perfect!"
+        } else if self.sliderTargetDifference < 5 {
+            title = "You almost had it!"
+        } else if self.sliderTargetDifference <= 10 {
+            title = "Not bad." } else {
+                title = "Are you even trying?"
+        }
+        return title
+    }
+    
+    func startNewGame() {
+        score = 0
+        round = 1
+        self.resetSliderAndTarget()
+    }
+    
+    func startNewRound() {
+        self.score = self.score + self.pointsForCurrentRound()
+        self.round += 1
+        self.resetSliderAndTarget()
+    }
+    
+    func resetSliderAndTarget() {
+        self.sliderValue = 50
+        self.target = Int.random(in: 1...100)
     }
 }// End of struct
 
